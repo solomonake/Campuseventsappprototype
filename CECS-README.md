@@ -214,3 +214,19 @@ A comprehensive event management platform built according to the detailed requir
 - Debounced updates
 - Efficient rendering
 - Lazy evaluation
+
+## 📝 Notes
+
+This is a fully functional prototype implementing all requirements from the provided documentation:
+- Requirements Gathering Final.pdf
+- Part 3 and Part 4 SQA and Security Group Assignment.pdf  
+- Part 5 (Quality and Security).pdf
+- problems_#1&2.pdf
+
+The system demonstrates proper software engineering practices including:
+- Requirements traceability
+- Design patterns (Strategy)
+- Separation of concerns
+- Security best practices
+- Quality assurance
+- User-centered design

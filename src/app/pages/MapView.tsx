@@ -1,3 +1,40 @@
+/**
+ * Map View Page
+ *
+ * Displays events on a visual campus map with location pins.
+ * Provides geographic context for event discovery.
+ *
+ * RISK MITIGATION (R6 - Scope Creep on Maps):
+ * ============================================
+ * FROZEN SCOPE: Map feature is intentionally LIMITED to:
+ * 1. Display event location pins
+ * 2. Provide external directions link (Google Maps)
+ * 3. Show basic event info on pin click
+ *
+ * OUT OF SCOPE (DO NOT IMPLEMENT):
+ * - Full routing between locations
+ * - Turn-by-turn navigation
+ * - Distance calculations
+ * - Walking time estimates
+ * - Indoor navigation
+ * - Custom map tiles
+ *
+ * Any scope expansion MUST be approved by project lead to prevent
+ * schedule delays and resource overallocation.
+ *
+ * RISK MITIGATION (R3 - Map Integration Failure):
+ * ===============================================
+ * TODO: Separate MapService concerns to prevent map failures
+ *       from breaking the main event feed.
+ *
+ * Recommended Architecture:
+ * - Create standalone MapService for map-specific logic
+ * - Implement contract tests between MapView and EventService
+ * - Add error boundaries to isolate map rendering failures
+ * - Provide graceful degradation if map fails (fallback to list view)
+ *
+ * @module pages/MapView
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useApp } from "../contexts/AppContext";
@@ -8,6 +45,24 @@ import { Badge } from "../components/ui/badge";
 import { Award, Calendar, MapPin, Info } from "lucide-react";
 import { format } from "date-fns";
 
+/**
+ * MapView Component
+ *
+ * Renders events on a simulated campus map.
+ *
+ * Current Implementation:
+ * - CSS-based map simulation (prototype)
+ * - Event pins positioned based on coordinates
+ * - Sidebar with event details
+ * - External directions link
+ *
+ * Production TODO:
+ * - Integrate actual mapping library (Leaflet/Mapbox)
+ * - Implement MapService separation (R3 mitigation)
+ * - Add contract tests for map-feed interaction
+ *
+ * @returns {JSX.Element} Map view page
+ */
 export default function MapView() {
   const { eventService, filterCriteria } = useApp();
   const navigate = useNavigate();

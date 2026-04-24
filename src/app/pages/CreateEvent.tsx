@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useApp } from "../contexts/AppContext";
 import { useAuth } from "../contexts/AuthContext";
-import { Event, Tag } from "../types/models";
-import { mockLocations, mockTags } from "../data/mockData";
+import { Event, Tag, Location } from "../types/models";
+import { mockTags } from "../data/mockData";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { ArrowLeft, Save, Send, AlertCircle } from "lucide-react";
+import LocationPicker from "../components/LocationPicker";
 
 export default function CreateEvent() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function CreateEvent() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [datetime, setDatetime] = useState("");
-  const [locationId, setLocationId] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [cost, setCost] = useState("0");
   const [capacity, setCapacity] = useState("");
   const [creditEligible, setCreditEligible] = useState(false);
@@ -52,7 +52,7 @@ export default function CreateEvent() {
     if (!title.trim()) newErrors.push("Event title is required");
     if (!description.trim()) newErrors.push("Event description is required");
     if (!datetime) newErrors.push("Event date and time is required");
-    if (!locationId) newErrors.push("Event location is required");
+    if (!selectedLocation) newErrors.push("Event location is required");
     if (isNaN(parseFloat(cost)) || parseFloat(cost) < 0) newErrors.push("Valid cost is required");
 
     setErrors(newErrors);
@@ -63,7 +63,6 @@ export default function CreateEvent() {
     if (!validate()) return;
     setSuccess(false);
 
-    const selectedLocation = mockLocations.find((l) => l.id === locationId);
     if (!selectedLocation) return;
 
     const selectedTagObjects: Tag[] = selectedTags
@@ -163,33 +162,21 @@ export default function CreateEvent() {
             </div>
 
             {/* Date and Time */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="datetime">Date & Time *</Label>
-                <Input
-                  id="datetime"
-                  type="datetime-local"
-                  value={datetime}
-                  onChange={(e) => setDatetime(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Select value={locationId} onValueChange={setLocationId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockLocations.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="datetime">Date & Time *</Label>
+              <Input
+                id="datetime"
+                type="datetime-local"
+                value={datetime}
+                onChange={(e) => setDatetime(e.target.value)}
+              />
             </div>
+
+            {/* Location Picker - New Map Pin Feature */}
+            <LocationPicker
+              selectedLocation={selectedLocation}
+              onLocationChange={setSelectedLocation}
+            />
 
             {/* Cost and Capacity */}
             <div className="grid md:grid-cols-2 gap-4">

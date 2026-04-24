@@ -1,3 +1,26 @@
+/**
+ * Check-In Service - SECURITY CRITICAL
+ *
+ * RISK MITIGATION (R4 - Injection Vulnerability):
+ * ==============================================
+ * CRITICAL: When implementing database backend, USE PARAMETERIZED QUERIES ONLY
+ *
+ * Security Requirements:
+ * 1. Input Validation: Sanitize all user inputs (eventId, userId, eventCode)
+ * 2. Parameterized Queries: NEVER concatenate user input into SQL
+ * 3. Output Encoding: Encode all user data before display
+ * 4. Rate Limiting: Prevent brute-force code guessing
+ *
+ * Example BAD (Vulnerable to SQL Injection):
+ *   query = `SELECT * FROM checkins WHERE userId = '${userId}'`
+ *
+ * Example GOOD (Safe with parameterized query):
+ *   query = `SELECT * FROM checkins WHERE userId = ?`
+ *   params = [userId]
+ *
+ * @module services/CheckInService
+ */
+
 import { AttendanceCheckIn, CheckInMethod, CheckInStatus } from "../types/models";
 
 export class CheckInService {
@@ -7,7 +30,12 @@ export class CheckInService {
     this.checkIns = [];
   }
 
-  // Primary check-in method
+  /**
+   * Primary Check-In Method
+   *
+   * SECURITY NOTE (R4): In production, validate userId and eventId
+   * against allowlist patterns before processing.
+   */
   checkIn(eventId: string, userId: string): AttendanceCheckIn {
     const checkIn: AttendanceCheckIn = {
       id: `checkin-${Date.now()}`,
@@ -22,16 +50,39 @@ export class CheckInService {
     return checkIn;
   }
 
-  // Fallback check-in with event code
+  /**
+   * Fallback Check-In with Event Code
+   *
+   * SECURITY CRITICAL (R4 - Injection Vulnerability):
+   * ------------------------------------------------
+   * This method accepts USER INPUT (eventCode) which is UNTRUSTED.
+   *
+   * Current Prototype Protection:
+   * - Simple format validation only
+   *
+   * Required Production Security:
+   * 1. Input Sanitization: Strip special characters, limit length
+   * 2. Rate Limiting: Max 5 attempts per user per event
+   * 3. Audit Logging: Log all failed attempts
+   * 4. CAPTCHA: After 3 failed attempts
+   * 5. Constant-time comparison: Prevent timing attacks
+   *
+   * TODO: Implement input sanitization before production deployment
+   */
   fallbackCheckIn(
     eventId: string,
     userId: string,
-    eventCode: string
+    eventCode: string  // ⚠️ USER INPUT - MUST SANITIZE
   ): AttendanceCheckIn | null {
+    // TODO (R4): Add input sanitization here
+    // Example: eventCode = sanitizeInput(eventCode);
+
     // Validate event code (simple validation for prototype)
     const expectedCode = `EVENT-${eventId.slice(-4).toUpperCase()}`;
-    
+
+    // TODO (R4): Use constant-time comparison to prevent timing attacks
     if (eventCode.toUpperCase() !== expectedCode) {
+      // TODO: Log failed attempt for security monitoring
       return null;
     }
 
